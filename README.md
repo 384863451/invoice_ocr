@@ -20,7 +20,7 @@
    1. 测试工具：postman，可自行下载安装
    2. 4张增值税发票混拍
    
-![Image text](https://raw.githubusercontent.com/384863451/invoice_ocr/master/images/a9f89e262f4d10220724004d99f3fc8.png?token=GHSAT0AAAAAABRARYQNU2BCTKSNDOMRLBZKYPTTG3Q)
+![Image text](https://raw.githubusercontent.com/384863451/invoice_ocr/master/images/a9f89e262f4d10220724004d99f3fc8.png)
 
 # 代码执行过程说明
 - 使用django命令启动
