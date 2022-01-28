@@ -14,7 +14,8 @@
 ## 服务启动
    1. 控制台 python manage.py runserver 127.0.0.1:8080
    2. 端口可自行修改
-   3. 服务调用地址：http://*.*.*.*: [端口号]/detection，例：http://127.0.0.1:8080/detection
+   3. 服务调用地址：http://*.*.*.*: [端口号]/detection_images,http://127.0.0.1:8080/detection，例：http://127.0.0.1:8080/detection_images
+                 
 ## 测试demo
    1. 测试工具：postman，可自行下载安装
    2. 4张增值税发票混拍
