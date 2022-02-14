@@ -35,6 +35,7 @@
 - 增值税发票只识别了五要素，后续打算结合发票查验直接获取全票面
 - 其他发票都只识别了几个部位，后期有空完善
 - crnn使用了chineseocr项目自带的，打算专门针对发票要素只训练需要的文字
+- 本月完成非税发票的识别和查验
 
 ## 参考
 chineseocr https://github.com/chineseocr/chineseocr
