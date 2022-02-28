@@ -2,7 +2,7 @@ import cv2
 import random
 import os
 
-use = 1
+use = 0
 
 def no_tax(label, img, res):
     if res is None:
