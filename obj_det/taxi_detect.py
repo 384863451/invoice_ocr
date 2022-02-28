@@ -15,6 +15,8 @@ from utils.general import check_img_size, check_imshow, non_max_suppression, \
 from utils.torch_utils import select_device, time_synchronized
 import hashlib
 from crnn.crnn_torch_chinese import crnnOcr as ccrnnOcr
+from util.create_img import no_tax
+from util.create_img import use
 
 import threading
 
@@ -144,6 +146,8 @@ def invoice_detection(file_name=None, invoice=None):
                         newimg = im0[int(xyxy[1]):int(xyxy[3]), int(xyxy[0]): int(xyxy[2])]
                         i = i + 1
                         invoice[converter[label]] = ccrnnOcr(newimg)
+                        if use == 1:
+                            no_tax(label, newimg, invoice[converter[label]])
     for val in converter.values():
         if invoice.get(val) is None:
             invoice[val] = "0"

@@ -1,17 +1,9 @@
 import cv2
-from obj_det.detect import invoice_detection as det
-from obj_det.tra_detect import invoice_detection as tra
-from obj_det.vat_detect import invoice_detection as vat
-from obj_det.taxi_detect import invoice_detection as taxi
-from obj_det.roll_detect import invoice_detection as roll
-from obj_det.title_detect import invoice_detection as title
-from obj_det.evat_detect import invoice_detection as evat
-from single_ocr.opencv_direction import angle_detect_dnn
 import time
 import fitz
 import threading
 from util.ofd_util import get_info
-
+from obj_det.ocr_context import context
 
 lock = threading.Lock()
 
@@ -25,47 +17,56 @@ e_vat_names = ['08', '10', '14']
 tra_names = ['88']
 taxi_names = ['92']
 roll_names = ['11']
+no_tax_names = ['81']
+
 
 # 检查文件扩展名
 def allowed_file(filename, type_extension):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in type_extension
 
+
 def time_synchronized():
     return time.time()
 
+
 def rotate(img, invoice):
-    angle = angle_detect_dnn(img)
+    angle = context.angleModel(img)
     if angle != 0:
         index = 3 - angle / 90
         img = cv2.rotate(img, int(index))
         cv2.imwrite(invoice['file_path'], img)
 
+
 def process_image(file_name):
     result = []
-    list_invoice = det(file_name)
+    list_invoice = context.det(file_name)
     for invoice in list_invoice:
         invoice_type = invoice['invoiceType']
         img = cv2.imread(invoice['file_path'])
         rotate(img, invoice)
         if str(invoice_type) in vat_names or str(invoice_type) in e_vat_names:
-            title(file_name=invoice['file_path'], invoice=invoice)
+            context.title(file_name=invoice['file_path'], invoice=invoice)
             invoice_type = invoice['invoiceType']
         if str(invoice_type) in tra_names:
-            tra(file_name=invoice['file_path'], invoice=invoice)
+            context.tra(file_name=invoice['file_path'], invoice=invoice)
             result.append(invoice)
         if str(invoice_type) in vat_names:
-            vat(file_name=invoice['file_path'], invoice=invoice)
+            context.vat(file_name=invoice['file_path'], invoice=invoice, context=context)
             result.append(invoice)
         if str(invoice_type) in e_vat_names:
-            evat(file_name=invoice['file_path'], invoice=invoice)
+            context.evat(file_name=invoice['file_path'], invoice=invoice, context=context)
             result.append(invoice)
         if str(invoice_type) in taxi_names:
-            taxi(file_name=invoice['file_path'], invoice=invoice)
+            context.taxi(file_name=invoice['file_path'], invoice=invoice)
             result.append(invoice)
         if str(invoice_type) in roll_names:
-            roll(file_name=invoice['file_path'], invoice=invoice)
+            context.roll(file_name=invoice['file_path'], invoice=invoice)
+            result.append(invoice)
+        if str(invoice_type) in no_tax_names:
+            context.noVat(file_name=invoice['file_path'], invoice=invoice, context=context)
             result.append(invoice)
     return result
+
 
 def process_pdf(file_name):
     #  打开PDF文件，生成一个对象
@@ -87,8 +88,9 @@ def process_pdf(file_name):
         result.extend(invoices)
     return result
 
+
 def process_ofd(file_name):
-    result = get_info("images/" + file_name, "images/zip"+file_name.split(".")[0])
+    result = get_info("images/" + file_name, "images/zip" + file_name.split(".")[0])
     invoices = []
     checkcode = result.get('校验码')
     invoiceType = '10'
@@ -98,7 +100,8 @@ def process_ofd(file_name):
         invoice_type_name = '增值税电子专用发票'
     invoice = {"invoiceType": invoiceType, "invoice_type_name": invoice_type_name, "file_path": 'demo',
                "coordinate": [], 'invoice_code': result['发票代码'], 'invoice_number': result['发票号码'],
-               'totalAmount': result['合计金额'], 'billingDate': result['开票日期'], 'checkCode': result['校验码'].replace(" ", "")}
+               'totalAmount': result['合计金额'], 'billingDate': result['开票日期'],
+               'checkCode': result['校验码'].replace(" ", "")}
 
     invoices.append(invoice)
     return invoices

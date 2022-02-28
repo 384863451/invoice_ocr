@@ -11,20 +11,18 @@ from numpy import random
 from models.experimental import attempt_load
 from utils.datasets import LoadStreams, LoadImages
 from utils.general import check_img_size, check_imshow, non_max_suppression, \
-    scale_coords, xyxy2xywh, strip_optimizer, set_logging
+    scale_coords, xyxy2xywh, set_logging
 from utils.torch_utils import select_device, time_synchronized
-from util.qrcode import qrcode
-import threading
 import hashlib
+from util.qrcode import qrcode_no_tax
 from util.create_img import no_tax
 from util.create_img import use
 
+import threading
+
 lock = threading.Lock()
 
-converter = {'invoice_code': 'invoice_code', 'invoice_number': 'invoice_number', 'totalAmount': 'totalAmount',
-             'billingDate': 'billingDate', 'checkcode': 'checkCode',
-             'QRCode': 'QRCode', 'title': 'title'}
-pub_weights = "models/evat/best.pt"
+pub_weights = "models/no_tax/best.pt"
 pub_view_img = False
 pub_save_txt = False
 pub_img_size = 640
@@ -49,6 +47,20 @@ stride = int(model.stride.max())  # model stride
 imgsz = check_img_size(pub_img_size, s=stride)  # check img_size
 if half:
     model.half()  # to FP16
+
+
+def invoice_number_process(img):
+    height, width, _ = img.shape
+    for i in range(height):
+        for j in range(width):
+            dot = img[i, j]
+            dot0 = dot[0]
+            dot1 = dot[1]
+            dot2 = dot[2]
+            if dot2 < dot1 or dot2 < dot0:
+                img[i, j] = [0, 0, 0]
+                continue
+    return img
 
 
 def invoice_detection(file_name=None, invoice=None, context=None):
@@ -130,15 +142,12 @@ def invoice_detection(file_name=None, invoice=None, context=None):
                     orgfilename = orgfilename.rsplit('/', 1)[1]
                     if save_img or view_img:  # Add bbox to image
                         label = names[int(cls)]
-                        if "title" == label:
-                            continue
                         newimg = im0[int(xyxy[1]):int(xyxy[3]), int(xyxy[0]): int(xyxy[2])]
-                        if "QRCode" == label and qrcode(newimg, invoice):
+                        i = i + 1
+                        if "qrcode" == label and qrcode_no_tax(newimg, invoice):
                             break
-                        invoice[converter[label]] = context.chineseModel(newimg)
+                        invoice[label] = context.chineseModel(newimg)
                         if use == 1:
-                            no_tax(label, newimg, invoice[converter[label]])
-    for val in converter.values():
-        if invoice.get(val) is None:
-            invoice[val] = "0"
+                            no_tax(label, newimg, invoice[label])
+
     return invoice

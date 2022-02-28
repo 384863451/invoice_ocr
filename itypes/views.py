@@ -1,3 +1,5 @@
+import shutil
+
 import cv2
 import requests
 
@@ -57,6 +59,7 @@ def detection(request):
     list_invoice = det(invoice_file_name)
     return re(0, list_invoice).result()
 
+
 def detection_url(request):
     post_param = request.POST
     get_param = request.GET
@@ -97,3 +100,13 @@ def detection_images(request):
     destination.close()
     list_invoice = det(invoice_file_name)
     return re(0, list_invoice).result()
+
+
+def batch_img(request):
+    file_dir = "F:\\aaa\\images"
+    for root, dirs, files in os.walk(file_dir):
+        for file in files:
+            file_path = root + "\\" + file
+            shutil.copy(file_path, "D:\\pycharm\\invoice_ocr\\images\\" + file)
+            det(file)
+    return re(0, "a").result()

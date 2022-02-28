@@ -32,3 +32,24 @@ def qrcode(img, invoice):
     except Exception as e:
         print("二维码未识别" + str(e))
         return False
+
+
+def qrcode_no_tax(img, invoice):
+    try:
+        img = cv2.resize(img, (300, 300))
+        id = uuid.uuid4()
+        path = "images/qrcode/" + str(id) + ".jpg"
+        cv2.imwrite(path, img)
+        reader = zxing.BarCodeReader()
+        barcode = reader.decode(path)
+        data = barcode.parsed
+        if "http" in data:
+            paramOrg = data.split("?")[1]
+            param_2s = paramOrg.split("&")
+            for param_2 in param_2s:
+                param = param_2.split("=")
+                invoice[param[0]] = param[1]
+        return True
+    except Exception as e:
+        print("二维码未识别" + str(e))
+        return False

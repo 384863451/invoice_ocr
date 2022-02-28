@@ -17,6 +17,8 @@ import hashlib
 from crnn.crnn_torch_chinese import crnnOcr as ccrnnOcr
 from util.qrcode import qrcode
 import threading
+from util.create_img import no_tax
+from util.create_img import use
 
 lock = threading.Lock()
 converter = {'invoice_code': 'invoice_code', 'invoice_number': 'invoice_number', 'totalAmount': 'totalAmount',
@@ -132,6 +134,8 @@ def invoice_detection(file_name=None, invoice=None):
                         if "QRCode" == label:
                             qrData = newimg
                         invoice[converter[label]] = ccrnnOcr(newimg)
+                        if use == 1:
+                            no_tax(label, newimg, invoice[converter[label]])
     for val in converter.values():
         if invoice.get(val) is None:
             invoice[val] = "0"

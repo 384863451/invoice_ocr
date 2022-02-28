@@ -11,12 +11,12 @@ from numpy import random
 from models.experimental import attempt_load
 from utils.datasets import LoadStreams, LoadImages
 from utils.general import check_img_size, check_imshow, non_max_suppression, \
-    scale_coords, xyxy2xywh, strip_optimizer, set_logging
+    scale_coords, xyxy2xywh, set_logging
 from utils.torch_utils import select_device, time_synchronized
 import hashlib
-from crnn.crnn_torch_chinese import crnnOcr as ccrnnOcr
 from util.qrcode import qrcode
-from obj_det.detect import converter as multype
+from util.create_img import no_tax
+from util.create_img import use
 
 import threading
 
@@ -52,7 +52,7 @@ if half:
     model.half()  # to FP16
 
 
-def invoice_detection(file_name=None, invoice=None):
+def invoice_detection(file_name=None, invoice=None, context=None):
     uid = hashlib.md5(file_name.encode("utf8")).hexdigest()
     i = 0
 
@@ -137,7 +137,9 @@ def invoice_detection(file_name=None, invoice=None):
                         i = i + 1
                         if "QRCode" == label and qrcode(newimg, invoice):
                             break
-                        invoice[converter[label]] = ccrnnOcr(newimg)
+                        invoice[converter[label]] = context.chineseModel(newimg)
+                        if use == 1:
+                            no_tax(label, newimg, invoice[converter[label]])
     for val in converter.values():
         if invoice.get(val) is None:
             invoice[val] = "0"
