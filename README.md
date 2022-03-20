@@ -9,7 +9,7 @@
     YOLOv5 + CRNN + CTC
    
 ## 模型
-   1. 模型下载地址：链接：链接：https://pan.baidu.com/s/1NlZKXsK9qxZI8Gqq15jDNQ 提取码：4p3o
+   1. 模型下载地址：链接：链接：https://pan.baidu.com/s/1E_OE9HOjjFh6GZdPWQVbMg 提取码：voqi
    2. 将下载完毕的模型文件夹models放置于项目根目录下
 ## 服务启动
    1. 控制台 python manage.py runserver 127.0.0.1:8080
@@ -34,7 +34,7 @@
 ## 后期开发计划
 - 增值税发票只识别了五要素，后续打算结合发票查验直接获取全票面
 - 其他发票都只识别了几个部位，后期有空完善
-- crnn使用了chineseocr项目自带的，打算专门针对发票要素只训练需要的文字
+- crnn使用了chineseocr项目自带的，crnn优化下一个开始
 
 ## 参考
 chineseocr https://github.com/chineseocr/chineseocr
